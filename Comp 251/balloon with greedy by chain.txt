@@ -1,0 +1,118 @@
+import java.io.*;
+import java.util.*;
+
+public class balloon {
+	//
+	public static int getFirstAtHeight(ArrayList<Integer> p, HashSet<Integer> popped, int height) {
+		int i = 0;
+		int safeIndex = -1;
+		while(i<p.size()) {
+			if(!(popped.contains(i)) && p.get(i)== height) {
+				safeIndex= i;
+				break;
+			}
+			i++;
+		}
+		return safeIndex;
+	}
+	public static int getPeakHeight(ArrayList<Integer> p, HashSet<Integer> popped) {
+		int maxheight =-1;
+		for(int i =0; i<p.size(); i++) {
+			if(p.get(i)>maxheight && !popped.contains(i)) {
+				maxheight = p.get(i);
+			}
+			
+		}
+		return maxheight;
+	}
+	
+	public static void main(String[] args) {
+		try {
+			Scanner f = new Scanner(new File("testBalloons.txt"));
+			String line = f.nextLine();
+			int nbOfProb = Integer.parseInt(line);
+			
+			String[] line2 = f.nextLine().split(" ");
+			int[] nbBalloonPerProb = new int[nbOfProb];
+			
+			
+			
+			for(int i = 0 ; i < nbOfProb; i++) {
+				nbBalloonPerProb[i] = Integer.parseInt(line2[i]);
+			}
+			
+			String[] probLine = new String[nbOfProb];
+			int n = 0;
+			while(f.hasNextLine() && n<nbOfProb) {
+				probLine[n] = f.nextLine();
+				n++;
+			}
+			f.close();
+			ArrayList<ArrayList<Integer>> problems = new ArrayList<ArrayList<Integer>>();
+			for(int i = 0; i< nbOfProb; i++) {
+				ArrayList<Integer> prob = new ArrayList<Integer>();
+				String[] balloons = probLine[i].split(" ");
+				for(String balloon : balloons) {
+					prob.add(Integer.parseInt(balloon));
+				}
+				problems.add(prob);
+			}
+			
+			ArrayList<Integer> Solution= new ArrayList<Integer>();
+			for(ArrayList<Integer> p : problems) {
+				//ArrayList<Integer> p = problems.get(5);
+				
+			
+				int shots = 0;
+				HashSet<Integer> popped = new HashSet<Integer>();
+				int maxChainLength =0;
+				ArrayList<Integer> maxChain = new ArrayList<Integer>();
+				while(getPeakHeight(p, popped)!=-1) {
+					//System.out.println(getPeakHeight(p, popped));
+					
+					for(int i = 0; getPeakHeight(p, popped)-i > 0; i++) {
+						int chainLength =0;
+						int h1 = getPeakHeight(p, popped)-i;
+						ArrayList<Integer> chain = new ArrayList<Integer>();
+						
+						int first = getFirstAtHeight(p, popped, h1);
+						if(first != -1) {
+							chainLength++;
+							chain.add(first);
+							int height = h1 -1;
+							
+							for(int k = 1; k+first<p.size(); k++) {
+								if(p.get(k+first) == height && !(popped.contains(k+first))) {
+									chainLength++;
+									height--;
+									chain.add(k+first);
+								}
+							}
+						}
+						
+						if(chainLength > maxChainLength) {
+							maxChainLength = chainLength;
+							maxChain = chain;
+						}
+					}
+					for(int i = 0; i<maxChain.size(); i++)
+						popped.add(maxChain.get(i));
+					maxChain.clear();
+					maxChainLength = 0;
+					shots++;
+					//System.out.println(popped.toString());
+				}
+				//System.out.println(popped.toString());
+				//System.out.println(getPeakHeight(p, popped));
+				
+				Solution.add(shots);
+			}
+			System.out.println(Solution.toString());
+			
+		} catch(FileNotFoundException e) {
+			System.out.println("You fucked up bro! You cant do shit like that!");
+		}
+		
+	}
+	
+}
